@@ -1,12 +1,15 @@
 package com.sw.customlistview;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+
 /**
- * Created by Alen on 16.6.2015.
+ * Created on 16.6.2015.
  */
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -23,10 +26,11 @@ public class DBHelper extends SQLiteOpenHelper {
     //Sql queries for database initialisation and deletion
     private final static String TYPE = " TEXT ";
     private final static String SQL_CREATE = "CREATE TABLE "+TABLE_NAME + " (" +
-            COLUMN_ID + " INTEGER PRIMARY KEY, "+ COLUMN_DATE + TYPE + ", " + COLUMN_NOTE + TYPE +");";
+            COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "+ COLUMN_DATE + TYPE + ", " + COLUMN_NOTE + TYPE +");";
 
     private final static String SQL_DELETE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
+    private SQLiteDatabase db;
 
 
     public DBHelper(Context context) {
@@ -41,10 +45,37 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
             db.execSQL(SQL_DELETE);
             onCreate(db);
+    }
 
+
+    public Cursor getAllNotes(){
+        db = this.getReadableDatabase();
+        String[] columns = {COLUMN_ID, COLUMN_DATE, COLUMN_NOTE};
+        String orderBy = COLUMN_ID + " DESC"; //order of the query
+
+        Cursor cursor = db.query(TABLE_NAME, columns,null,null,null,null,orderBy);
+
+        if(cursor != null){
+            cursor.moveToFirst();
+        }
+        return cursor;
+    }
+
+    public void insertNote(String date, String note){
+        db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_DATE, date);
+        contentValues.put(COLUMN_NOTE, note);
+        db.insert(TABLE_NAME,null,contentValues);
+        db.close();
+    }
+
+    public void deleteNote(Long id){
+        db = this.getWritableDatabase();
+        db.delete(TABLE_NAME,COLUMN_ID + " = " + id, null);
+        db.close();
     }
 
 }

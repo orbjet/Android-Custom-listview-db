@@ -1,7 +1,7 @@
 package com.sw.customlistview;
 
 /**
- * Created by Alen on 16.6.2015.
+ * Created on 16.6.2015.
  */
 public class DBModel {
 
